@@ -1,5 +1,7 @@
 node_modules/
 exports/
+dist/
+.wrangler/
 .frames/
 .DS_Store
 # Your own art stays on your machine. The built-in examples ship with the repo.

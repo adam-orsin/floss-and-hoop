@@ -30,6 +30,7 @@
     body.viewer #viewerBar { display: flex; position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); gap: 8px; align-items: center;
       background: rgba(249, 238, 223, 0.94); padding: 8px 10px; border-radius: 12px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25); flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
     #viewerBar button, #viewerBar select { width: auto; margin: 0; padding: 7px 12px; font: inherit; border: 1px solid var(--ink); border-radius: 8px; background: #fff; color: var(--ink); }
+    #viewerBar a { color: var(--ink); font-weight: 600; text-decoration: none; padding: 7px 8px; }
     #viewerBar span { color: var(--muted); font-size: 13px; padding: 0 4px; }
   </style>
 </head>
@@ -62,6 +63,7 @@
   </aside>
   <main><canvas id="view"></canvas></main>
   <div id="viewerBar">
+    <a id="vHome" href="/gallery.html">All examples</a>
     <select id="vDesign" aria-label="Design"></select>
     <button id="vFront">Front</button>
     <button id="vBack">Back</button>

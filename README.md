@@ -6,6 +6,8 @@ I built this for my wife's candy cart business, Haus Candy Co. It's free, and it
 
 <img src="examples/stitch-on.gif" width="360" alt="A monogram star being cross-stitched row by row in a wooden hoop">
 
+**Live demo:** [floss-and-hoop.pages.dev](https://floss-and-hoop.pages.dev) shows the five examples and the 3D viewer, so you can turn a hoop over before you clone anything.
+
 **See the results first:** the [examples](examples/README.md) folder has a rendered still, a printable stitch chart, and a floss list for five Haus Candy Co. logos.
 
 ## The easy way: hand it to your AI coding agent
@@ -72,7 +74,26 @@ You need Node.js 20 or later. For the videos, you also need [ffmpeg](https://ffm
 - **[Vite](https://vitejs.dev):** runs the app locally and saves exports.
 - **[Playwright](https://playwright.dev):** renders stills and video frames in a headless browser.
 - **[ffmpeg](https://ffmpeg.org):** turns the frames into MP4 videos.
+- **React, Tailwind CSS, and shadcn/ui:** build the gallery page.
 - **Plain JavaScript:** handles the pattern. It snaps colors, picks French knots and backstitch, matches DMC floss with CIEDE2000 color math, and draws the chart.
+
+## The live demo
+
+The demo is a static copy of the gallery and the 3D viewer with the built-in examples. It has no server, so nothing gets uploaded or stored. To rebuild it:
+
+1. Make the web-sized videos and the viewer still in `examples/`:
+
+   ```bash
+   npm run examples:web
+   ```
+
+2. Build the static site into `dist/`:
+
+   ```bash
+   npm run build
+   ```
+
+`npm run preview` serves `dist/` on port 5191 to check it. The full-size renders stay in `exports/`, which git ignores.
 
 ## Credits
 

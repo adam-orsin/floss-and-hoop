@@ -45,7 +45,7 @@ export function ffmpegHint() {
   return 'sudo apt-get install -y ffmpeg';
 }
 
-const GPU_ARGS = [
+export const GPU_ARGS = [
   '--ignore-gpu-blocklist', '--enable-webgl', '--enable-gpu',
   '--disable-domain-blocking-for-3d-apis', '--disable-gpu-process-crash-limit',
   // Machines without a usable GPU fall back to software WebGL: slower, but it works.

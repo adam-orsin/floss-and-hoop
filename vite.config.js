@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { buildManifest, exampleFiles } from './scripts/manifest.mjs';
 
 const root = path.dirname(new URL(import.meta.url).pathname);
 const exportsDir = path.join(root, 'exports');
@@ -118,8 +121,60 @@ function exportApi() {
   };
 }
 
-export default defineConfig({
-  publicDir: 'assets',
-  plugins: [exportApi()],
+// The landing page reads the built-in examples from `virtual:floss-examples`, built from
+// examples/ when the page loads in dev and once at build time.
+function examplesManifest() {
+  const id = 'virtual:floss-examples';
+  return {
+    name: 'floss-and-hoop-examples',
+    resolveId: (source) => (source === id ? `\0${id}` : null),
+    load: (source) => (source === `\0${id}` ? `export default ${JSON.stringify(buildManifest(root))};` : null),
+    handleHotUpdate({ file, server }) {
+      if (file.startsWith(path.join(root, 'examples')) || file.endsWith('designs.json')) {
+        const mod = server.moduleGraph.getModuleById(`\0${id}`);
+        if (mod) server.moduleGraph.invalidateModule(mod);
+      }
+    },
+  };
+}
+
+// `npm run build` makes the static demo for Cloudflare Pages. Only files that ship with the
+// repo go in: the built-in designs, their example renders, and the pages. The landing page
+// becomes index.html and the 3D viewer moves to viewer.html. Your own designs and exports/
+// never leave your computer.
+function staticDemo() {
+  return {
+    name: 'floss-and-hoop-static-demo',
+    apply: 'build',
+    generateBundle() {
+      const emit = (fileName, file) => this.emitFile({ type: 'asset', fileName, source: fs.readFileSync(path.join(root, file)) });
+      emit('designs.json', 'assets/designs.json');
+      const svgDir = path.join(root, 'assets', 'examples');
+      if (fs.existsSync(svgDir)) for (const f of fs.readdirSync(svgDir)) emit(`examples/${f}`, `assets/examples/${f}`);
+      for (const f of exampleFiles(root)) {
+        if (fs.statSync(path.join(root, f)).size > 25 * 1024 * 1024) throw new Error(`${f} is over Cloudflare Pages' 25 MB file limit.`);
+        emit(f.split(path.sep).join('/'), f);
+      }
+    },
+    // Vite writes the HTML pages last, so they're renamed once the build is on disk.
+    closeBundle() {
+      const dist = path.join(root, 'dist');
+      if (!fs.existsSync(path.join(dist, 'gallery.html'))) return;
+      fs.renameSync(path.join(dist, 'index.html'), path.join(dist, 'viewer.html'));
+      fs.renameSync(path.join(dist, 'gallery.html'), path.join(dist, 'index.html'));
+    },
+  };
+}
+
+export default defineConfig(({ command }) => ({
+  // In dev, ./assets is served as-is. The static build copies only the shipped files (see staticDemo).
+  publicDir: command === 'build' ? false : 'assets',
+  plugins: [react(), tailwindcss(), exportApi(), examplesManifest(), staticDemo()],
+  resolve: { alias: { '@': path.join(root, 'src', 'site') } },
   server: { port: 5190, strictPort: true, host: '127.0.0.1' },
-});
+  build: {
+    // Three.js is most of the viewer's bundle, and it loads only on the viewer page.
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: { input: { viewer: path.join(root, 'index.html'), gallery: path.join(root, 'gallery.html') } },
+  },
+}));

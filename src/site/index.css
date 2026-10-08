@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource/ibm-plex-mono/400.css";
+
+/* Values come from the approved Paper design (floss-and-hoop, page "V2 · Neutral canvas").
+   To use another typeface, change --font-sans. */
+@theme {
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ground: #f4f3f1;
+  --color-card: #ffffff;
+  --color-well: #f0eeea;
+  --color-ink: #141518;
+  --color-muted: #6b6f76;
+  --color-faint: #a3a6ac;
+  --color-hairline: #e6e4e0;
+  --color-backdrop: #8b2c3b;
+
+  /* shadcn/ui names, mapped to the palette above. */
+  --color-background: var(--color-ground);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-card);
+  --color-secondary-foreground: var(--color-ink);
+  --color-accent: var(--color-well);
+  --color-accent-foreground: var(--color-ink);
+  --color-muted-foreground: var(--color-muted);
+  --color-card-foreground: var(--color-ink);
+  --color-border: var(--color-hairline);
+  --color-input: var(--color-hairline);
+  --color-ring: var(--color-ink);
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-ground font-sans text-ink antialiased;
+  }
+  ::selection { background: var(--color-backdrop); color: #fff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

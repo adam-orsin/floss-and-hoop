@@ -5,16 +5,31 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5190",
+    "build": "vite build",
+    "preview": "vite preview --port 5191",
     "make": "node scripts/make.mjs",
     "render": "node scripts/render.mjs",
     "examples": "node scripts/examples.mjs",
+    "examples:web": "node scripts/web-media.mjs",
     "clear-examples": "node scripts/clear-examples.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@radix-ui/react-slot": "^1.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.53.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwind-merge": "^3.7.0",
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^5.2.0",
     "playwright": "^1.55.0",
+    "tailwindcss": "^4.3.3",
     "vite": "^7.1.0"
   },
   "description": "Turn a logo or drawing into a realistic cross-stitch render, a 3D hoop you can turn over, and a printable stitch chart with DMC floss.",

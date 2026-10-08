@@ -26,8 +26,9 @@ const state = {
   backstitch: true,
 };
 // URL parameters open a specific design, and ui=0 gives the full-screen 3D viewer.
+// The static demo (npm run build) has no export server, so it's always the viewer.
 const params = new URLSearchParams(location.search);
-const viewer = params.get('ui') === '0';
+const viewer = params.get('ui') === '0' || import.meta.env.PROD;
 if (params.get('design') && DESIGNS[params.get('design')]) {
   state.design = params.get('design');
   state.grid = Number(params.get('grid')) || DESIGNS[state.design].grid;
@@ -343,6 +344,7 @@ function viewTo(azimuthDeg, polarDeg = 90) {
   controls.update();
 }
 if (viewer) {
+  $('vHome').href = import.meta.env.PROD ? '/' : '/gallery.html';
   $('vFront').addEventListener('click', () => { controls.autoRotate = false; viewTo(0); });
   $('vBack').addEventListener('click', () => { controls.autoRotate = false; viewTo(180); });
   $('vSpin').addEventListener('click', () => { controls.autoRotate = !controls.autoRotate; });

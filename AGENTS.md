@@ -92,5 +92,8 @@ Read `exports/<name>-report.md` and tell the user:
 | `src/chart.js` | The printable chart. |
 | `src/main.js` | The app, the export functions, and the `window.flossHoop` hooks the scripts call. |
 | `assets/designs.json` | Built-in Haus Candy Co. example designs. |
-| `examples/` | Finished stills, charts, and floss reports for the built-in designs. Rebuild with `npm run examples`, or remove with `npm run clear-examples`. |
+| `examples/` | Finished stills, charts, floss reports, and web-sized videos for the built-in designs. Rebuild with `npm run examples` and `npm run examples:web`, or remove with `npm run clear-examples`. |
+| `gallery.html`, `src/site/` | The gallery page (React, Tailwind, and shadcn/ui). It lists the user's designs from `exports/` above the built-in examples. |
+| `scripts/manifest.mjs` | Lists the built-in examples for the gallery, so the static demo needs no server. |
+| `scripts/web-media.mjs` | Makes the 720 px videos and the viewer still for the gallery and the live demo. |
 | `assets/designs.local.json` | The user's designs (git ignores it). |
