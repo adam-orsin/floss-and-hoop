@@ -13,11 +13,20 @@ export function LiveHoop({ design, still, className }) {
   const [ready, setReady] = useState(false);
   const [touch] = useState(() => window.matchMedia('(pointer: coarse)').matches);
 
+  // Wait for the page to finish loading and go quiet, so building the 3D scene doesn't
+  // compete with the first paint.
   useEffect(() => {
     if (touch || load) return undefined;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setLoad(true); }, { rootMargin: '200px' });
-    io.observe(ref.current);
-    return () => io.disconnect();
+    let io;
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setLoad(true); }, { rootMargin: '200px' });
+      io.observe(ref.current);
+    };
+    const idle = () => (window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2500 }) : setTimeout(start, 1200));
+    if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+    return () => { cancelled = true; io?.disconnect(); window.removeEventListener('load', idle); };
   }, [touch, load]);
 
   useEffect(() => {
@@ -28,7 +37,7 @@ export function LiveHoop({ design, still, className }) {
 
   return (
     <div ref={ref} className={cn('relative overflow-hidden rounded-2xl bg-backdrop', className)}>
-      {still && <img src={still} alt="" className="absolute inset-0 size-full object-cover" />}
+      {still && <img src={still} alt="" fetchPriority="high" className="absolute inset-0 size-full object-cover" />}
       {load && (
         <iframe
           title={`${design?.label || 'Design'} in 3D. Drag to turn it over.`}
@@ -51,7 +60,7 @@ export function LiveHoop({ design, still, className }) {
       <TileLabel>Drag to turn it over</TileLabel>
       <a
         href={viewerUrl(design)}
-        className="absolute right-3 bottom-3 inline-flex items-center gap-0.5 rounded-full bg-white/92 px-4 py-2 text-sm font-medium text-ink transition hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none md:right-5 md:bottom-5"
+        className="absolute right-3 bottom-2.5 inline-flex items-center gap-0.5 rounded-full bg-white/92 px-4 py-2 text-sm leading-5 font-medium text-ink transition hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none md:bottom-3"
       >
         Full screen <ArrowUpRight className="size-4" />
       </a>

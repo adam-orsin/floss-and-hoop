@@ -6,7 +6,8 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
 
 // One output in a rounded tile. Videos play while they're on screen, and the round button
 // in the corner pauses them.
-export function VideoTile({ src, label, className, pill = false, children }) {
+// preload="none" keeps offscreen videos from downloading; the poster shows the first frame.
+export function VideoTile({ src, poster, label, className, pill = false, priority = false, children }) {
   const ref = useRef(null);
   const [paused, setPaused] = useState(reducedMotion());
   const userPaused = useRef(reducedMotion());
@@ -32,10 +33,11 @@ export function VideoTile({ src, label, className, pill = false, children }) {
       <video
         ref={ref}
         src={src}
+        poster={poster}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload={priority ? 'auto' : 'none'}
         onPlay={() => setPaused(false)}
         onPause={() => setPaused(true)}
         className="absolute inset-0 size-full object-cover"
@@ -82,8 +84,8 @@ export function TileLabel({ children, pill = false, dark = false }) {
   return (
     <span
       className={cn(
-        'pointer-events-none absolute bottom-4 left-4 text-[13px] leading-4 font-medium md:bottom-5 md:left-[18px]',
-        pill ? 'bottom-3 left-3 rounded-full bg-white/94 px-2.5 py-[5px] text-ink md:bottom-3.5 md:left-3' : dark ? 'text-ink' : 'text-white',
+        'pointer-events-none absolute bottom-5 left-4 text-[13px] leading-4 font-medium md:bottom-[22px] md:left-[18px]',
+        pill ? 'bottom-[15px] left-3 rounded-full bg-white/94 px-2.5 py-[5px] text-ink md:bottom-[17px] md:left-3' : dark ? 'text-ink' : 'text-white',
       )}
     >
       {children}

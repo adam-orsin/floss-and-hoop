@@ -4,7 +4,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const MEDIA = { still: 'feed.jpg', pushIn: 'push-in.mp4', stitchOn: 'stitch-on.mp4', chart: 'chart.png', detail: 'detail-check.png', report: 'README.md' };
+const MEDIA = {
+  still: 'feed.jpg', stillThumb: 'feed-thumb.jpg',
+  pushIn: 'push-in.mp4', pushInPoster: 'push-in.jpg',
+  stitchOn: 'stitch-on.mp4', stitchOnPoster: 'stitch-on.jpg',
+  chart: 'chart.png', chartThumb: 'chart-thumb.jpg',
+  detail: 'detail-check.png', report: 'README.md',
+};
 
 export function buildManifest(root) {
   const designsFile = path.join(root, 'assets', 'designs.json');
@@ -42,6 +48,7 @@ export function buildManifest(root) {
 // and the detail checks stay on GitHub.
 export function exampleFiles(root) {
   const { examples, viewerStill } = buildManifest(root);
-  const files = examples.flatMap((e) => [e.files.still, e.files.pushIn, e.files.stitchOn, e.files.chart]);
+  const keep = ['still', 'stillThumb', 'pushIn', 'pushInPoster', 'stitchOn', 'stitchOnPoster', 'chart', 'chartThumb'];
+  const files = examples.flatMap((e) => keep.map((k) => e.files[k]));
   return [...files, viewerStill].filter(Boolean).map((f) => f.slice(1));
 }

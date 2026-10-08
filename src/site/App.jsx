@@ -17,7 +17,8 @@ function GitHubMark(props) {
 export default function App() {
   const yours = useLocalDesigns();
   const all = [...yours, ...examples];
-  const heroVideo = examples.find((d) => d.key === 'monogram-star')?.files.stitchOn || all.find((d) => d.files.stitchOn)?.files.stitchOn;
+  const heroDesign = examples.find((d) => d.key === 'monogram-star') || all.find((d) => d.files.stitchOn);
+  const heroVideo = heroDesign?.files.stitchOn;
   const heroViewer = examples.find((d) => d.key === 'scalloped-border') || all[0];
 
   // The gallery is opened with #design-key after a render, and cards appear after load.
@@ -58,7 +59,7 @@ export default function App() {
 
         {(heroVideo || heroViewer) && (
           <section className="grid gap-3 md:grid-cols-2" aria-label="Featured renders">
-            {heroVideo && <VideoTile src={heroVideo} label="Stitch-on" className="aspect-[358/420] md:aspect-[594/660] md:rounded-[20px]" />}
+            {heroVideo && <VideoTile src={heroVideo} poster={heroDesign.files.stitchOnPoster} priority label="Stitch-on" className="aspect-[358/420] md:aspect-[594/660] md:rounded-[20px]" />}
             {heroViewer && <LiveHoop design={heroViewer} still={viewerStill} className="aspect-[358/420] md:aspect-[594/660] md:rounded-[20px]" />}
           </section>
         )}
@@ -66,18 +67,18 @@ export default function App() {
         <MakeYourOwn />
 
         {yours.length > 0 && (
-          <section id="yours" className="scroll-mt-6 pt-24 md:pt-40">
+          <section id="yours" className="scroll-mt-6 pt-32 md:pt-48">
             <SectionHead first="Your designs." second="Only on this computer." />
-            <div className="mt-7 flex flex-col gap-3 md:mt-12 md:gap-4">
+            <div className="mt-8 flex flex-col gap-4 md:mt-12 md:gap-5">
               {yours.map((d) => <ExampleCard key={d.key} design={d} />)}
             </div>
           </section>
         )}
 
         {examples.length > 0 && (
-          <section id="examples" className="scroll-mt-6 pt-24 md:pt-40">
+          <section id="examples" className="scroll-mt-6 pt-32 md:pt-48">
             <SectionHead first={`${examples.length === 5 ? 'Five' : examples.length} examples.`} second={<><span className="md:hidden">Every output, one command.</span><span className="hidden md:inline">Every output from one command.</span></>} />
-            <div className="mt-7 flex flex-col gap-3 md:mt-12 md:gap-4">
+            <div className="mt-8 flex flex-col gap-4 md:mt-12 md:gap-5">
               {examples.map((d) => <ExampleCard key={d.key} design={d} />)}
             </div>
           </section>
@@ -85,7 +86,7 @@ export default function App() {
 
       </main>
 
-      <footer className="flex flex-col justify-between gap-1.5 pt-18 pb-8 text-[13px] text-muted md:flex-row md:pt-30 md:pb-10 md:text-sm">
+      <footer className="flex flex-col justify-between gap-1.5 pt-24 pb-8 text-[13px] leading-5 text-muted md:flex-row md:pt-40 md:pb-10 md:text-sm">
         <span>Floss &amp; Hoop · <a href={`${REPO}/blob/main/LICENSE`} className="hover:text-ink">MIT license</a></span>
         <span>Three.js, Vite, Playwright, and ffmpeg</span>
       </footer>
