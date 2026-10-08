@@ -1,0 +1,37 @@
+{
+  "monogram-star": {
+    "label": "Monogram star",
+    "file": "examples/monogram-star.svg",
+    "grid": 80,
+    "fabric": "cream",
+    "group": "Haus Candy Co. examples"
+  },
+  "primary-logo": {
+    "label": "Primary logo",
+    "file": "examples/primary-logo.svg",
+    "grid": 120,
+    "fabric": "cream",
+    "group": "Haus Candy Co. examples"
+  },
+  "badge-cornflower": {
+    "label": "Badge",
+    "file": "examples/badge-cornflower.svg",
+    "grid": 120,
+    "fabric": "cream",
+    "group": "Haus Candy Co. examples"
+  },
+  "oval-stamp-cornflower": {
+    "label": "Oval stamp",
+    "file": "examples/oval-stamp-cornflower.svg",
+    "grid": 160,
+    "fabric": "cream",
+    "group": "Haus Candy Co. examples"
+  },
+  "scalloped-border": {
+    "label": "Scalloped border",
+    "file": "examples/scalloped-border.svg",
+    "grid": 100,
+    "fabric": "cream",
+    "group": "Haus Candy Co. examples"
+  }
+}

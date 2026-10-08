@@ -1,0 +1,22 @@
+{
+  "name": "floss-and-hoop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5190",
+    "make": "node scripts/make.mjs",
+    "render": "node scripts/render.mjs",
+    "examples": "node scripts/examples.mjs",
+    "clear-examples": "node scripts/clear-examples.mjs"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0",
+    "vite": "^7.1.0"
+  },
+  "description": "Turn a logo or drawing into a realistic cross-stitch render, a 3D hoop you can turn over, and a printable stitch chart with DMC floss.",
+  "license": "MIT"
+}

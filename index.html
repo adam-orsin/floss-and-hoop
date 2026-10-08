@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Floss &amp; Hoop</title>
+  <style>
+    :root { --ink: #39271b; --line: #e4d9cc; --panel: #fffdf9; --muted: #6d5d52; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #f4ece2; color: var(--ink); font: 14px/1.4 -apple-system, Helvetica, Arial, sans-serif; }
+    body { display: grid; grid-template-columns: 300px 1fr; }
+    aside { background: var(--panel); border-right: 1px solid var(--line); padding: 18px; overflow-y: auto; }
+    h1 { font-size: 18px; margin: 0 0 14px; }
+    label { display: block; margin: 12px 0 4px; font-weight: 600; }
+    select, input[type=range], input[type=color] { width: 100%; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row input[type=checkbox] { margin: 0; }
+    .check { display: flex; gap: 8px; align-items: center; margin-top: 10px; font-weight: 400; }
+    button { width: 100%; margin-top: 8px; padding: 9px 10px; border: 1px solid var(--ink); background: #fff; color: var(--ink); border-radius: 6px; font: inherit; cursor: pointer; }
+    button:hover { background: #f5ede3; }
+    button:disabled { opacity: 0.5; cursor: progress; }
+    .section { margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--line); }
+    #status { margin-top: 12px; color: var(--muted); white-space: pre-wrap; font-size: 12px; }
+    main { position: relative; overflow: hidden; }
+    #view { width: 100%; height: 100%; display: block; }
+    #exportCanvas { position: fixed; left: -99999px; top: 0; }
+    #viewerBar { display: none; }
+    body.viewer { grid-template-columns: 1fr; background: #8c2d3d; }
+    body.viewer aside { display: none; }
+    body.viewer #viewerBar { display: flex; position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); gap: 8px; align-items: center;
+      background: rgba(249, 238, 223, 0.94); padding: 8px 10px; border-radius: 12px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25); flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
+    #viewerBar button, #viewerBar select { width: auto; margin: 0; padding: 7px 12px; font: inherit; border: 1px solid var(--ink); border-radius: 8px; background: #fff; color: var(--ink); }
+    #viewerBar span { color: var(--muted); font-size: 13px; padding: 0 4px; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Floss &amp; Hoop</h1>
+    <label for="design">Design</label>
+    <select id="design"></select>
+    <label for="grid">Stitches across: <span id="gridVal"></span></label>
+    <input id="grid" type="range" min="40" max="160" step="1" />
+    <label for="fabric">Fabric</label>
+    <select id="fabric"></select>
+    <label for="hoop">Hoop</label>
+    <select id="hoop">
+      <option value="round">Classic round, brass clasp</option>
+      <option value="square">Rounded square, brass clasp</option>
+    </select>
+    <label for="bg">Background</label>
+    <div class="row"><input id="bg" type="color" value="#8c2d3d" /></div>
+    <label class="check"><input id="knots" type="checkbox" checked /> French knots for small dots</label>
+    <label class="check"><input id="back" type="checkbox" checked /> Backstitch thin detail</label>
+    <div class="section">
+      <button id="exFeed">Export feed still (1080×1350)</button>
+      <button id="exStory">Export story still (1080×1920)</button>
+      <button id="exPush">Export push-in video (1080×1920)</button>
+      <button id="exStitch">Export stitch-on video (1080×1920)</button>
+      <button id="exChart">Export chart PNG</button>
+    </div>
+    <div id="status"></div>
+  </aside>
+  <main><canvas id="view"></canvas></main>
+  <div id="viewerBar">
+    <select id="vDesign" aria-label="Design"></select>
+    <button id="vFront">Front</button>
+    <button id="vBack">Back</button>
+    <button id="vSpin">Spin</button>
+    <button id="vIn" aria-label="Zoom in">Zoom in</button>
+    <button id="vOut" aria-label="Zoom out">Zoom out</button>
+    <button id="vReset">Reset</button>
+    <span>Drag to turn. Scroll or pinch to zoom.</span>
+  </div>
+  <canvas id="exportCanvas"></canvas>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

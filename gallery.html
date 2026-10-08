@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Floss &amp; Hoop gallery</title>
+  <style>
+    :root { --cream: #f9eedf; --chocolate: #39271b; --merlot: #8c2d3d; --muted: #6d5d52; --card: #fffaf3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cream); color: var(--chocolate); font: 16px/1.5 -apple-system, Helvetica, Arial, sans-serif; }
+    header { padding: 32px 24px 8px; max-width: 1280px; margin: 0 auto; }
+    h1 { color: var(--merlot); font-size: 32px; margin: 0 0 6px; }
+    header p { margin: 0 0 6px; color: var(--muted); }
+    header a { color: var(--merlot); }
+    main { max-width: 1280px; margin: 0 auto; padding: 0 24px 64px; }
+    section { margin-top: 40px; }
+    h2 { color: var(--merlot); font-size: 24px; margin: 0 0 4px; }
+    .note { color: var(--muted); margin: 0 0 16px; }
+    .row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    figure { margin: 0; background: var(--card); border-radius: 10px; padding: 10px; box-shadow: 0 1px 3px rgba(57, 39, 27, 0.12); }
+    figure img, figure video { width: 100%; display: block; border-radius: 6px; background: #ddd; }
+    figcaption { font-size: 14px; color: var(--muted); padding-top: 8px; }
+    figcaption a { color: var(--merlot); }
+    .empty { color: var(--muted); font-style: italic; }
+    .note a { color: var(--merlot); font-weight: 600; }
+    h3.group { margin: 48px 0 0; font-size: 15px; color: var(--muted); font-weight: 600; text-transform: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Floss &amp; Hoop gallery</h1>
+    <p>Every finished render. Everything stays on this computer. Videos play when you hover over them. Click any image to open it full size.</p>
+    <p>Each design has an <strong>Open in 3D</strong> link: drag to turn the hoop side to side or flip it over to see the back, and scroll to zoom into the threads.</p>
+  </header>
+  <main id="sections"></main>
+  <script type="module">
+    // Designs come from assets/designs.json (starters) and assets/designs.local.json (yours).
+    const DESIGNS = [];
+    for (const f of ['designs.json', 'designs.local.json']) {
+      try {
+        const res = await fetch(`/${f}?t=${Date.now()}`);
+        if (!res.ok) continue;
+        for (const [key, d] of Object.entries(await res.json())) {
+          if (d.hidden) continue;
+          const fabric = d.fabric || 'cream';
+          DESIGNS.push({ key, title: d.label || key, grid: d.grid, fabric, group: d.group || 'Your designs',
+            note: `${d.grid} stitches across, ${fabric} Aida` });
+        }
+      } catch { /* no local designs yet */ }
+    }
+    const KINDS = [
+      ['stitch-on.mp4', 'Stitch-on video (1080 × 1920)'],
+      ['push-in.mp4', 'Push-in video (1080 × 1920)'],
+      ['feed.png', 'Feed still (1080 × 1350)'],
+      ['story.png', 'Story still (1080 × 1920)'],
+    ];
+    const files = new Map((await (await fetch('/api/exports')).json()).map((f) => [f.name, f.mtime]));
+    const root = document.getElementById('sections');
+    const el = (tag, attrs = {}, kids = []) => {
+      const n = document.createElement(tag);
+      Object.assign(n, attrs);
+      for (const k of [].concat(kids)) n.append(k);
+      return n;
+    };
+    if (!DESIGNS.some((d) => [...files.keys()].some((f) => f.startsWith(`${d.key}-grid`)))) {
+      root.append(el('p', { className: 'empty', textContent: 'Nothing rendered yet. Run npm run make -- path/to/your-image.png' }));
+    }
+    // Your designs first, then the built-in groups.
+    const groupOrder = ['Your designs', ...new Set(DESIGNS.map((d) => d.group).filter((g) => g !== 'Your designs'))];
+    DESIGNS.sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group));
+    let lastGroup = null;
+    for (const d of DESIGNS) {
+      const base = `${d.key}-grid${d.grid}-${d.fabric}`;
+      const row = el('div', { className: 'row' });
+      for (const [suffix, label] of KINDS) {
+        const name = `${base}-${suffix}`;
+        if (!files.has(name)) continue;
+        const src = `/exports/${name}?v=${Math.round(files.get(name))}`;
+        let media;
+        if (name.endsWith('.mp4')) {
+          media = el('video', { src, muted: true, loop: true, playsInline: true, preload: 'metadata', controls: true });
+          media.addEventListener('mouseenter', () => media.play());
+          media.addEventListener('mouseleave', () => media.pause());
+        } else {
+          media = el('a', { href: src, target: '_blank' }, el('img', { src, alt: `${d.title}, ${label}`, loading: 'lazy' }));
+        }
+        row.append(el('figure', {}, [media, el('figcaption', {}, [label, ' · ', el('a', { href: src, download: name, textContent: 'download' })])]));
+      }
+      const chart = `${d.key}-grid${d.grid}-chart.png`;
+      if (files.has(chart)) {
+        const src = `/exports/${chart}?v=${Math.round(files.get(chart))}`;
+        row.append(el('figure', {}, [el('a', { href: src, target: '_blank' }, el('img', { src, alt: `${d.title} stitch chart`, loading: 'lazy' })),
+          el('figcaption', {}, ['Stitch chart · ', el('a', { href: src, download: chart, textContent: 'download' })])]));
+      }
+      const report = `${d.key}-report.md`;
+      if (!row.children.length) continue;
+      if (d.group !== lastGroup) { root.append(el('h3', { className: 'group', textContent: d.group })); lastGroup = d.group; }
+      const open3d = el('a', { href: `/?design=${d.key}&grid=${d.grid}&fabric=${d.fabric}&ui=0`, target: '_blank', className: 'open3d', textContent: 'Open in 3D: turn it, flip it, zoom in' });
+      const noteKids = [d.note, ' · ', open3d];
+      if (files.has(report)) noteKids.push(' · ', el('a', { href: `/exports/${report}`, target: '_blank', textContent: 'floss list and notes' }));
+      root.append(el('section', { id: d.key }, [el('h2', { textContent: d.title }), el('p', { className: 'note' }, noteKids), row]));
+    }
+  </script>
+</body>
+</html>

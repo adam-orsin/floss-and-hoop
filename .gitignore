@@ -1,0 +1,9 @@
+node_modules/
+exports/
+.frames/
+.DS_Store
+# Your own art stays on your machine. The built-in examples ship with the repo.
+assets/*
+!assets/README.md
+!assets/designs.json
+!assets/examples/
