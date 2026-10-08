@@ -1,5 +1,5 @@
 // Makes the web-sized media the landing page and the static demo use:
-//   examples/<key>/push-in.mp4 and stitch-on.mp4   720 px wide, a few MB each
+//   examples/<key>/push-in.mp4 and stitch-on.mp4   720 px wide, a few MB each (stitch-on at 2x)
 //   examples/viewer.jpg                            a still of the 3D viewer, turned a little
 // The full-size renders stay in exports/, which git ignores.
 // Usage: npm run examples:web (after npm run make or npm run render has made the videos)
@@ -22,7 +22,10 @@ for (const [key, d] of Object.entries(designs)) {
     const src = path.join(exportsDir, `${key}-grid${d.grid}-${d.fabric || 'cream'}-${kind}.mp4`);
     if (!fs.existsSync(src)) { console.warn(`Skipped ${key} ${kind}: no ${path.relative(ROOT, src)}. Render it first.`); continue; }
     const out = path.join(dir, `${kind}.mp4`);
-    const r = spawnSync('ffmpeg', ['-y', '-v', 'error', '-i', src, '-vf', 'scale=720:-2', '-c:v', 'libx264', '-preset', 'slow',
+    // The stitch-on plays at twice the rendered speed on the web, then holds the finished
+    // piece for a beat before it loops.
+    const vf = kind === 'stitch-on' ? 'setpts=0.5*PTS,fps=30,tpad=stop_mode=clone:stop_duration=1.5,scale=720:-2' : 'scale=720:-2';
+    const r = spawnSync('ffmpeg', ['-y', '-v', 'error', '-i', src, '-vf', vf, '-c:v', 'libx264', '-preset', 'slow',
       '-crf', '26', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', out], { stdio: 'inherit' });
     if (r.status !== 0) throw new Error(`ffmpeg failed on ${src}`);
     const size = fs.statSync(out).size;
@@ -40,7 +43,7 @@ if (still) {
   const d = designs[still];
   await page.goto(`${URL_BASE}?design=${still}&grid=${d.grid}&fabric=${d.fabric || 'cream'}&ui=0`);
   await page.waitForFunction(() => window.flossHoop?.ready, null, { timeout: 120000 });
-  await page.evaluate(() => { document.getElementById('viewerBar').style.display = 'none'; });
+  await page.evaluate(() => { for (const id of ['viewerBar', 'vHint']) document.getElementById(id).style.display = 'none'; });
   await page.waitForTimeout(2500);
   await page.mouse.move(600, 660);
   await page.mouse.down();

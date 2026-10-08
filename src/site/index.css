@@ -1,12 +1,20 @@
 @import "tailwindcss";
 @import "@fontsource-variable/instrument-sans";
-@import "@fontsource/ibm-plex-mono/400.css";
+
+/* Paper Mono by Paper (paper.design/mono), SIL Open Font License 1.1: see fonts/PaperMono-OFL.txt. */
+@font-face {
+  font-family: "Paper Mono";
+  src: url("./fonts/PaperMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* Values come from the approved Paper design (floss-and-hoop, page "V2 · Neutral canvas").
    To use another typeface, change --font-sans. */
 @theme {
   --font-sans: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono: "Paper Mono", ui-monospace, monospace;
 
   --color-ground: #f4f3f1;
   --color-card: #ffffff;

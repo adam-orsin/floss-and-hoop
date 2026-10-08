@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExampleCard } from '@/components/ExampleCard';
 import { MakeYourOwn, SectionHead } from '@/components/MakeYourOwn';
-import { TileLabel, VideoTile } from '@/components/Tile';
+import { VideoTile } from '@/components/Tile';
+import { LiveHoop } from '@/components/LiveHoop';
 import { REPO, examples, useLocalDesigns, viewerStill, viewerUrl } from '@/data';
 
 function GitHubMark(props) {
@@ -56,20 +56,14 @@ export default function App() {
           </div>
         </section>
 
-        {(heroVideo || viewerStill) && (
+        {(heroVideo || heroViewer) && (
           <section className="grid gap-3 md:grid-cols-2" aria-label="Featured renders">
             {heroVideo && <VideoTile src={heroVideo} label="Stitch-on" className="aspect-[358/420] md:aspect-[594/660] md:rounded-[20px]" />}
-            {viewerStill && (
-              <a href={viewerUrl(heroViewer)} className="group relative block aspect-[358/420] overflow-hidden rounded-2xl bg-backdrop focus-visible:ring-2 focus-visible:ring-ink focus-visible:outline-none md:aspect-[594/660] md:rounded-[20px]">
-                <img src={viewerStill} alt="The 3D viewer, with a hoop turned to one side" className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-[1.02]" />
-                <TileLabel>Drag to turn it over</TileLabel>
-                <span className="absolute right-3 bottom-3 inline-flex items-center gap-0.5 rounded-full bg-white/92 px-4 py-2 text-sm font-medium text-ink transition group-hover:bg-white md:right-5 md:bottom-5">
-                  Open in 3D <ArrowUpRight className="size-4" />
-                </span>
-              </a>
-            )}
+            {heroViewer && <LiveHoop design={heroViewer} still={viewerStill} className="aspect-[358/420] md:aspect-[594/660] md:rounded-[20px]" />}
           </section>
         )}
+
+        <MakeYourOwn />
 
         {yours.length > 0 && (
           <section id="yours" className="scroll-mt-6 pt-24 md:pt-40">
@@ -89,7 +83,6 @@ export default function App() {
           </section>
         )}
 
-        <MakeYourOwn />
       </main>
 
       <footer className="flex flex-col justify-between gap-1.5 pt-18 pb-8 text-[13px] text-muted md:flex-row md:pt-30 md:pb-10 md:text-sm">

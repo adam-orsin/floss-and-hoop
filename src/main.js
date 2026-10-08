@@ -1,3 +1,4 @@
+import '@fontsource-variable/instrument-sans';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as THREE from 'three';
 import { inspectSvg, rasterize, rasterizeImage, buildPattern, lossOverlay } from './pattern.js';
@@ -28,7 +29,9 @@ const state = {
 // URL parameters open a specific design, and ui=0 gives the full-screen 3D viewer.
 // The static demo (npm run build) has no export server, so it's always the viewer.
 const params = new URLSearchParams(location.search);
-const viewer = params.get('ui') === '0' || import.meta.env.PROD;
+// embed=1 is the bare hoop for the gallery page's tile: no controls bar, no scroll zoom.
+const embed = params.get('embed') === '1';
+const viewer = params.get('ui') === '0' || embed || import.meta.env.PROD;
 if (params.get('design') && DESIGNS[params.get('design')]) {
   state.design = params.get('design');
   state.grid = Number(params.get('grid')) || DESIGNS[state.design].grid;
@@ -38,6 +41,7 @@ if (params.get('design') && DESIGNS[params.get('design')]) {
 if (params.get('fabric') && FABRICS[params.get('fabric')]) state.fabric = params.get('fabric');
 if (params.get('bg')) state.background = `#${params.get('bg').replace('#', '')}`;
 if (viewer) document.body.classList.add('viewer');
+if (embed) document.body.classList.add('embed');
 let current = null; // { info, pattern }
 let busy = false;
 const fileCache = new Map();
@@ -344,10 +348,14 @@ function viewTo(azimuthDeg, polarDeg = 90) {
   controls.update();
 }
 if (viewer) {
+  const pressed = (id, on) => $(id).setAttribute('aria-pressed', String(on));
+  const face = (which) => { pressed('vFront', which === 'front'); pressed('vBack', which === 'back'); };
+  const spin = (on) => { controls.autoRotate = on; pressed('vSpin', on); if (on) face(null); };
   $('vHome').href = import.meta.env.PROD ? '/' : '/gallery.html';
-  $('vFront').addEventListener('click', () => { controls.autoRotate = false; viewTo(0); });
-  $('vBack').addEventListener('click', () => { controls.autoRotate = false; viewTo(180); });
-  $('vSpin').addEventListener('click', () => { controls.autoRotate = !controls.autoRotate; });
+  $('vFront').addEventListener('click', () => { spin(false); viewTo(0); face('front'); });
+  $('vBack').addEventListener('click', () => { spin(false); viewTo(180); face('back'); });
+  $('vSpin').addEventListener('click', () => spin(!controls.autoRotate));
+  controls.addEventListener('start', () => { spin(false); face(null); });
   const zoom = (k) => {
     const t = controls.target, p = stitch.camera.position;
     const d = Math.min(controls.maxDistance, Math.max(controls.minDistance, p.distanceTo(t) * k));
@@ -356,8 +364,15 @@ if (viewer) {
   };
   $('vIn').addEventListener('click', () => zoom(0.7));
   $('vOut').addEventListener('click', () => zoom(1 / 0.7));
-  $('vReset').addEventListener('click', () => { controls.autoRotate = false; frameDefault(); });
+  $('vReset').addEventListener('click', () => { spin(false); frameDefault(); face('front'); });
   controls.autoRotateSpeed = 1.6;
+  if (embed) {
+    // Scrolling the gallery page over the tile must scroll the page, not zoom the hoop.
+    controls.enableZoom = false;
+    controls.autoRotateSpeed = 0.8;
+    controls.rotateSpeed = 0.55;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) controls.autoRotate = true;
+  }
   for (const [k, d] of Object.entries(DESIGNS)) {
     if (d.hidden && k !== state.design) continue;
     $('vDesign').add(new Option(d.label || k, k));
@@ -380,3 +395,5 @@ if (firstDesign) {
 }
 window.flossHoop.ready = true;
 loop();
+// The gallery page shows a still until the embedded hoop has drawn its first frame.
+if (embed && window.parent !== window) requestAnimationFrame(() => requestAnimationFrame(() => window.parent.postMessage({ type: 'floss-hoop-ready' }, location.origin)));

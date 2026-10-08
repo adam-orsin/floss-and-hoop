@@ -24,14 +24,37 @@
     main { position: relative; overflow: hidden; }
     #view { width: 100%; height: 100%; display: block; }
     #exportCanvas { position: fixed; left: -99999px; top: 0; }
-    #viewerBar { display: none; }
-    body.viewer { grid-template-columns: 1fr; background: #8c2d3d; }
+    /* Full-screen 3D viewer (?ui=0). Styled to match the gallery page. */
+    #viewerBar, #vHint { display: none; }
+    body.viewer { grid-template-columns: 1fr; background: #8b2c3b; font-family: "Instrument Sans Variable", system-ui, sans-serif; }
     body.viewer aside { display: none; }
-    body.viewer #viewerBar { display: flex; position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); gap: 8px; align-items: center;
-      background: rgba(249, 238, 223, 0.94); padding: 8px 10px; border-radius: 12px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25); flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); }
-    #viewerBar button, #viewerBar select { width: auto; margin: 0; padding: 7px 12px; font: inherit; border: 1px solid var(--ink); border-radius: 8px; background: #fff; color: var(--ink); }
-    #viewerBar a { color: var(--ink); font-weight: 600; text-decoration: none; padding: 7px 8px; }
-    #viewerBar span { color: var(--muted); font-size: 13px; padding: 0 4px; }
+    body.viewer #view { cursor: grab; touch-action: none; }
+    body.viewer #view:active { cursor: grabbing; }
+    body.viewer #vHint { display: block; position: fixed; top: 20px; left: 0; right: 0; text-align: center; color: rgba(255, 255, 255, 0.72); font-size: 13px; pointer-events: none; }
+    body.viewer #viewerBar { display: flex; position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); gap: 2px; align-items: center;
+      background: rgba(255, 255, 255, 0.94); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding: 5px; border-radius: 999px;
+      box-shadow: 0 1px 2px rgba(20, 21, 24, 0.06), 0 10px 30px rgba(20, 21, 24, 0.18); max-width: calc(100vw - 24px); overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+    #viewerBar::-webkit-scrollbar { display: none; }
+    #viewerBar button, #viewerBar a, #viewerBar select { flex-shrink: 0; height: 36px; margin: 0; padding: 0 14px; width: auto; border: 0; border-radius: 999px;
+      background: transparent; color: #141518; font: 500 14px/36px "Instrument Sans Variable", system-ui, sans-serif; text-decoration: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+    #viewerBar button:hover, #viewerBar a:hover { background: #f0eeea; }
+    #viewerBar button[aria-pressed="true"] { background: #141518; color: #fff; }
+    #viewerBar button:focus-visible, #viewerBar a:focus-visible, #viewerBar select:focus-visible { outline: 2px solid #141518; outline-offset: 1px; }
+    #viewerBar .icon { width: 36px; padding: 0; justify-content: center; }
+    #viewerBar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #viewerBar select { background: #f0eeea; padding: 0 30px 0 14px; appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141518' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; }
+    #viewerBar .sep { width: 1px; height: 20px; background: #e6e4e0; margin: 0 4px; flex-shrink: 0; }
+    @media (max-width: 640px) {
+      body.viewer #viewerBar { flex-wrap: wrap; justify-content: center; border-radius: 24px; width: calc(100vw - 24px); overflow: visible; bottom: 12px; }
+      #viewerBar .sep { display: none; }
+      #viewerBar .row-break { display: block; flex-basis: 100%; height: 0; margin: 0; }
+      #viewerBar button { padding: 0 12px; }
+    }
+    /* ?embed=1: the hoop alone, for the tile on the gallery page. */
+    body.embed #viewerBar, body.embed #vHint { display: none; }
   </style>
 </head>
 <body>
@@ -62,16 +85,19 @@
     <div id="status"></div>
   </aside>
   <main><canvas id="view"></canvas></main>
+  <p id="vHint">Drag to turn. Scroll or pinch to zoom.</p>
   <div id="viewerBar">
-    <a id="vHome" href="/gallery.html">All examples</a>
+    <a id="vHome" href="/gallery.html"><svg viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>All examples</a>
+    <span class="sep"></span>
     <select id="vDesign" aria-label="Design"></select>
-    <button id="vFront">Front</button>
-    <button id="vBack">Back</button>
-    <button id="vSpin">Spin</button>
-    <button id="vIn" aria-label="Zoom in">Zoom in</button>
-    <button id="vOut" aria-label="Zoom out">Zoom out</button>
-    <button id="vReset">Reset</button>
-    <span>Drag to turn. Scroll or pinch to zoom.</span>
+    <span class="sep row-break"></span>
+    <button id="vFront" aria-pressed="true">Front</button>
+    <button id="vBack" aria-pressed="false">Back</button>
+    <button id="vSpin" aria-pressed="false">Spin</button>
+    <span class="sep"></span>
+    <button id="vOut" class="icon" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+    <button id="vIn" class="icon" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button id="vReset" class="icon" aria-label="Reset view"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
   </div>
   <canvas id="exportCanvas"></canvas>
   <script type="module" src="/src/main.js"></script>
